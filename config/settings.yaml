@@ -6,7 +6,7 @@
 ib:
   host: "127.0.0.1"
   port: 4001           # 7497 = TWS Paper, 7496 = TWS Live, 4002 = Gateway Paper, 4001 = Gateway Live
-  client_id: 17
+  client_id: 1
   market_data_type: 3  # 1=live, 2=frozen, 3=delayed, 4=delayed-frozen.
                        # Use 3 for development without live subscriptions.
   request_timeout_s: 15
@@ -44,7 +44,7 @@ tbill:
   # bucket whose maturity is <= the option's DTE; remainder is held overnight.
   buckets_days: [28, 91, 182, 364]
   # Optional fallback yield (decimal) if IB cannot return a live T-Bill quote.
-  fallback_yield: 0.045
+  fallback_yield: 0.04
 
 # ---- Reporting --------------------------------------------------------------
 report:

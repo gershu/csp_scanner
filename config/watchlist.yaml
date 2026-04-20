@@ -17,9 +17,21 @@
 # =============================================================================
 
 watchlist:
-  - symbol: SAP
+  - symbol: AAPL
     exchange: SMART
-    currency: EUR
-    max_strike: 160.0
+    currency: USD
+    max_strike: 150.0
+    max_contracts: 10 
+    notes: "Zu tief gefallen, um sie nicht zu wollen. Solide Dividende."
+  - symbol: NVDA
+    exchange: SMART
+    currency: USD
+    max_strike: 150.0
+    max_contracts: 10 
+    notes: "Zu tief gefallen, um sie nicht zu wollen. Solide Dividende."
+  - symbol: PLTR
+    exchange: SMART
+    currency: USD
+    max_strike: 100.0
     max_contracts: 10 
     notes: "Zu tief gefallen, um sie nicht zu wollen. Solide Dividende."
