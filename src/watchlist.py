@@ -54,11 +54,18 @@ class ReportConfig:
 
 
 @dataclass
+class StoreConfig:
+    enabled: bool = True
+    db_path: str = "data/csp_history.duckdb"
+
+
+@dataclass
 class Settings:
     ib: IBConfig = field(default_factory=IBConfig)
     options: OptionsConfig = field(default_factory=OptionsConfig)
     tbill: TBillConfig = field(default_factory=TBillConfig)
     report: ReportConfig = field(default_factory=ReportConfig)
+    store: StoreConfig = field(default_factory=StoreConfig)
 
 
 # ---------------------------------------------------------------------------
@@ -92,6 +99,7 @@ def load_settings(path: str | Path) -> Settings:
     opts = data.get("options", {}) or {}
     tbill = data.get("tbill", {}) or {}
     rep = data.get("report", {}) or {}
+    st = data.get("store", {}) or {}
 
     return Settings(
         ib=IBConfig(
@@ -119,6 +127,10 @@ def load_settings(path: str | Path) -> Settings:
             output_dir=str(rep.get("output_dir", "output")),
             filename_prefix=str(rep.get("filename_prefix", "csp_scan")),
             open_after_run=bool(rep.get("open_after_run", False)),
+        ),
+        store=StoreConfig(
+            enabled=bool(st.get("enabled", True)),
+            db_path=str(st.get("db_path", "data/csp_history.duckdb")),
         ),
     )
 

@@ -46,6 +46,11 @@ tbill:
   # Optional fallback yield (decimal) if IB cannot return a live T-Bill quote.
   fallback_yield: 0.04
 
+# ---- Data store (DuckDB) ----------------------------------------------------
+store:
+  enabled: true
+  db_path: "data/csp_history.duckdb"   # relative to project root
+
 # ---- Reporting --------------------------------------------------------------
 report:
   output_dir: "output"

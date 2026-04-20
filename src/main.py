@@ -101,6 +101,22 @@ def main(argv: list[str] | None = None) -> int:
                     per_expiry[c.expiry] = matcher.match(c.dte, cash_usd=c.cash_required)
             tbill_matches[entry.symbol] = per_expiry
 
+    # ---- Persist to DuckDB -------------------------------------------------
+    if settings.store.enabled:
+        from .store import ScanStore
+        try:
+            with ScanStore(settings.store.db_path) as store:
+                run_id = store.save_run(
+                    run_ts=run_ts,
+                    candidates_by_ticker=candidates_by_ticker,
+                    tbill_matches=tbill_matches,
+                    settings=settings,
+                )
+            log.info("Scan results persisted to DuckDB (run_id=%s, db=%s)",
+                     run_id, settings.store.db_path)
+        except Exception as exc:  # noqa: BLE001
+            log.error("DuckDB store failed — scan results NOT persisted: %s", exc)
+
     # ---- Report ------------------------------------------------------------
     output_path = args.output or _build_output_path(settings, run_ts)
     report_path = write_report(
