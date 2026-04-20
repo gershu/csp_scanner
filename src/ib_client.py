@@ -202,18 +202,43 @@ class IBClient:
     # ---- option chain -----------------------------------------------------
 
     def option_chain_params(self, stock) -> dict:
-        """Fetch expiries & strikes for a stock via secDefOptParams."""
+        """Fetch expiries & strikes for a stock via secDefOptParams.
+
+        IB requires the stock to be qualified via SMART routing for this call
+        to return the full expiry/strike universe.  Qualifying with a primary
+        exchange (e.g. ARCA for SPY, NASDAQ for AAPL) can result in an empty
+        or truncated response.
+        """
         params = self.ib.reqSecDefOptParams(
             stock.symbol,
-            "",              # futFopExchange
+            "",              # futFopExchange (empty for equity options)
             stock.secType,
             stock.conId,
         )
+
         if not params:
+            log.warning(
+                "%s (conId=%s, exchange=%s): reqSecDefOptParams returned nothing. "
+                "Ensure the watchlist entry uses exchange: SMART.",
+                stock.symbol, stock.conId, stock.exchange,
+            )
             return {"expiries": [], "strikes": [], "exchange": None, "trading_class": None}
 
-        # Prefer SMART; fall back to first available
-        chain = next((p for p in params if p.exchange == "SMART"), params[0])
+        log.debug(
+            "%s: secDefOptParams returned %d param set(s): %s",
+            stock.symbol,
+            len(params),
+            [(p.exchange, p.tradingClass, len(p.expirations)) for p in params],
+        )
+
+        # Prefer SMART + tradingClass matching the symbol (e.g. 'SPY' over '2SPY'/'SPYW'),
+        # then any SMART entry, then first available.
+        smart_params = [p for p in params if p.exchange == "SMART"]
+        chain = (
+            next((p for p in smart_params if p.tradingClass == stock.symbol), None)
+            or next(iter(smart_params), None)
+            or params[0]
+        )
         return {
             "expiries": sorted(chain.expirations),
             "strikes": sorted(chain.strikes),

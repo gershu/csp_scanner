@@ -17,9 +17,16 @@
 # =============================================================================
 
 watchlist:
-  - symbol: AAPL
+#  - symbol: QQQ
+#    exchange: SMART
+#    currency: USD
+#    max_strike: 650.0
+#    max_contracts: 20 
+#    notes: "NASDAQ-ETF"
+  - symbol: SPY
     exchange: SMART
     currency: USD
-    max_strike: 280.0
-    max_contracts: 10 
-    notes: "Quality compounder; would add at <=180."
+    max_strike: 700.0
+    max_contracts: 20 
+    notes: "S&P-ETF"
+

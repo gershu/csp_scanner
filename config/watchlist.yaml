@@ -17,6 +17,13 @@
 # =============================================================================
 
 watchlist:
+  - symbol: SPY
+    exchange: SMART       # ARCA ist SPY's Primärbörse, aber für IB-Optionsabfragen
+    currency: USD         # (reqSecDefOptParams) muss SMART verwendet werden.
+    max_strike: 500.0     # Anpassen je nach aktuellem Kurs (~560 USD, April 2026)
+    max_contracts: 5
+    notes: "S&P 500 ETF. Sehr liquide, enge Spreads, viele Expiries. OTM-Puts als Absicherung."
+
   - symbol: AAPL
     exchange: SMART
     currency: USD

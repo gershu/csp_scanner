@@ -132,23 +132,55 @@ class CSPSelector:
 
         chain = self.client.option_chain_params(stock)
         if not chain["expiries"] or not chain["strikes"]:
-            log.warning("No option chain for %s.", entry.symbol)
+            log.warning(
+                "%s: reqSecDefOptParams returned no expiries/strikes. "
+                "Check that exchange='SMART' is used (not a primary exchange like ARCA/NASDAQ). "
+                "IB option-chain lookups require SMART routing.",
+                entry.symbol,
+            )
             return []
 
-        # ---- Filter expiries by DTE window --------------------------------
-        valid_expiries = [
+        n_total = len(chain["expiries"])
+        log.debug("%s: %d expiries from IB (exchange=%s, tradingClass=%s)",
+                  entry.symbol, n_total, chain["exchange"], chain["trading_class"])
+
+        # ---- Filter 1: DTE window -----------------------------------------
+        in_dte = [
             e for e in chain["expiries"]
             if self.cfg.dte_min <= dte_from_expiry(e, today) <= self.cfg.dte_max
         ]
+        log.debug("%s: %d/%d expiries in DTE [%d, %d]",
+                  entry.symbol, len(in_dte), n_total,
+                  self.cfg.dte_min, self.cfg.dte_max)
 
+        # ---- Filter 2: expiry_filter (monthlies / all) --------------------
         if self.cfg.expiry_filter == "monthlies":
-            valid_expiries = [e for e in valid_expiries if _is_monthly(e)]
+            valid_expiries = [e for e in in_dte if _is_monthly(e)]
+            log.debug("%s: %d/%d expiries pass monthlies filter (3rd Friday)",
+                      entry.symbol, len(valid_expiries), len(in_dte))
+        else:
+            valid_expiries = in_dte
 
         if not valid_expiries:
-            log.warning(
-                "No expiries for %s in DTE [%d,%d].",
-                entry.symbol, self.cfg.dte_min, self.cfg.dte_max,
-            )
+            # Build a precise diagnosis so the user knows exactly what failed.
+            if not in_dte:
+                dte_range = (
+                    f"[{dte_from_expiry(chain['expiries'][0], today)}, "
+                    f"{dte_from_expiry(chain['expiries'][-1], today)}]"
+                    if chain["expiries"] else "n/a"
+                )
+                log.warning(
+                    "%s: 0/%d expiries in DTE window [%d, %d] — "
+                    "IB returned DTE range %s. Adjust dte_min/dte_max in settings.yaml.",
+                    entry.symbol, n_total,
+                    self.cfg.dte_min, self.cfg.dte_max, dte_range,
+                )
+            else:
+                log.warning(
+                    "%s: %d expiries in DTE window but 0 pass expiry_filter='%s'. "
+                    "For SPY/QQQ with many weeklies, try expiry_filter: all.",
+                    entry.symbol, len(in_dte), self.cfg.expiry_filter,
+                )
             return []
 
         # ---- Pull option quotes per expiry --------------------------------
