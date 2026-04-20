@@ -1,0 +1,25 @@
+# =============================================================================
+# Watchlist for Cash-Secured Short Put Scanner
+# =============================================================================
+# Each entry describes a US stock you would be willing to own.
+#
+# Fields:
+#   symbol        : IB ticker (US stocks only).
+#   exchange      : Primary exchange. "SMART" routes via IB Smart Routing.
+#   currency      : "USD" for US stocks.
+#   max_strike    : Highest strike you accept ("Wunschniveau"). The scanner
+#                   only considers puts with strike <= max_strike.
+#                   Set to a level at/below which you actively want to be
+#                   assigned (e.g. fair value or technical support).
+#   max_contracts : Maximum number of put contracts the scanner is allowed
+#                   to recommend per underlying (informational only).
+#   notes         : Free-text reason why this stock is on your watchlist.
+# =============================================================================
+
+watchlist:
+  - symbol: AAPL
+    exchange: SMART
+    currency: USD
+    max_strike: 280.0
+    max_contracts: 10 
+    notes: "Quality compounder; would add at <=180."

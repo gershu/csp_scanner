@@ -6,7 +6,7 @@
 ib:
   host: "127.0.0.1"
   port: 4001           # 7497 = TWS Paper, 7496 = TWS Live, 4002 = Gateway Paper, 4001 = Gateway Live
-  client_id: 17
+  client_id: 1 
   market_data_type: 3  # 1=live, 2=frozen, 3=delayed, 4=delayed-frozen.
                        # Use 3 for development without live subscriptions.
   request_timeout_s: 15
@@ -14,11 +14,11 @@ ib:
 # ---- Option universe & filters ----------------------------------------------
 options:
   # Range of days-to-expiration to consider per ticker.
-  dte_min: 60
-  dte_max: 720
+  dte_min: 7
+  dte_max: 60
 
   # Only consider monthly + weekly listings? "all" keeps everything that IB returns.
-  expiry_filter: "monthlies"   # "all" | "monthlies"
+  expiry_filter: "all"   # "all" | "monthlies"
 
   # Maximum acceptable Bid/Ask spread, in % of mid price.
   # Spread% = (Ask - Bid) / Mid. Strikes above this are dropped.

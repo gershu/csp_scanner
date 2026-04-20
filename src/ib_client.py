@@ -147,9 +147,54 @@ class IBClient:
         return stk
 
     def spot_price(self, stock) -> float:
-        """Midpoint / last snapshot for a qualified stock contract."""
+        """Return the best available price for a qualified stock contract.
+
+        Strategy (three escalating attempts):
+
+        1. reqMktData snapshot — fast path for US stocks with delayed data
+           (market_data_type 3).  Non-US exchanges (e.g. XETRA) are NOT
+           covered by IB's free delayed feed, so this will return NaN for
+           European stocks without a subscription.
+
+        2. reqHistoricalData (1-day bar, TRADES) — works for virtually every
+           exchange and requires no market-data subscription.  Returns the
+           close of the most recent completed session.
+
+        3. reqMktData streaming fallback — last resort with a generous wait.
+        """
+        # --- attempt 1: market-data snapshot --------------------------------
+        ticker = self.ib.reqMktData(stock, "", snapshot=True, regulatorySnapshot=False)
+        self.ib.sleep(2.0)
+        price = _first_valid(ticker.marketPrice(), ticker.last, ticker.close)
+        if price is not None:
+            log.debug("spot_price [snapshot] %s = %.4f", stock.symbol, price)
+            return float(price)
+
+        # --- attempt 2: historical daily bar (no subscription required) -----
+        log.debug("spot_price snapshot NaN for %s — trying historical bar", stock.symbol)
+        try:
+            bars = self.ib.reqHistoricalData(
+                stock,
+                endDateTime="",          # most recent available
+                durationStr="5 D",       # look back up to 5 days to skip holidays
+                barSizeSetting="1 day",
+                whatToShow="TRADES",
+                useRTH=True,
+                formatDate=1,
+                keepUpToDate=False,
+            )
+            if bars:
+                price = _first_valid(bars[-1].close, bars[-1].open)
+                if price is not None:
+                    log.debug("spot_price [historical] %s = %.4f", stock.symbol, price)
+                    return float(price)
+        except Exception as exc:
+            log.debug("spot_price historical bar failed for %s: %s", stock.symbol, exc)
+
+        # --- attempt 3: streaming fallback ----------------------------------
+        log.debug("spot_price historical NaN for %s — falling back to stream", stock.symbol)
         ticker = self.ib.reqMktData(stock, "", snapshot=False, regulatorySnapshot=False)
-        self.ib.sleep(1.5)  # let one market-data tick arrive
+        self.ib.sleep(4.0)
         price = _first_valid(ticker.marketPrice(), ticker.last, ticker.close)
         self.ib.cancelMktData(stock)
         return float(price) if price is not None else float("nan")
