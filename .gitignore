@@ -17,3 +17,4 @@ output/
 
 # Env
 .env
+data/csp_history.duckdb
