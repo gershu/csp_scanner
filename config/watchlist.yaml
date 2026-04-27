@@ -1,44 +1,49 @@
 # =============================================================================
 # Watchlist for Cash-Secured Short Put Scanner
 # =============================================================================
-# Each entry describes a US stock you would be willing to own.
-#
 # Fields:
-#   symbol        : IB ticker (US stocks only).
-#   exchange      : Primary exchange. "SMART" routes via IB Smart Routing.
-#   currency      : "USD" for US stocks.
-#   max_strike    : Highest strike you accept ("Wunschniveau"). The scanner
-#                   only considers puts with strike <= max_strike.
-#                   Set to a level at/below which you actively want to be
-#                   assigned (e.g. fair value or technical support).
-#   max_contracts : Maximum number of put contracts the scanner is allowed
-#                   to recommend per underlying (informational only).
-#   notes         : Free-text reason why this stock is on your watchlist.
+#   symbol        : IB ticker.
+#   stk_exchange  : Exchange für Stock-Qualifizierung. "SMART" = IB Smart Routing.
+#   opt_exchange  : Exchange für Options-Fetch. US-Aktien: "SMART".
+#                   Europäische Aktien: z.B. "EUREX".
+#   trading_class : IB Trading Class (optional). Leer = automatisch von IB.
+#                   Nötig wenn IB-Autodetection falsche Klasse liefert (z.B. SAP → "SAP").
+#   currency      : Währung des Underlyings ("USD" oder "EUR").
+#   max_strike    : Höchster Strike, den der Scanner berücksichtigt ("Wunschniveau").
+#                   Nur Puts mit strike <= max_strike werden analysiert.
+#   max_contracts : Maximale Kontraktzahl pro Underlying (informativ).
+#   notes         : Freitext-Kommentar.
 # =============================================================================
 
 watchlist:
   - symbol: SPY
-    exchange: SMART       # ARCA ist SPY's Primärbörse, aber für IB-Optionsabfragen
-    currency: USD         # (reqSecDefOptParams) muss SMART verwendet werden.
+    stk_exchange: SMART   # ARCA ist SPY's Primärbörse; für IB-Optionsabfragen
+    opt_exchange: SMART   # (reqSecDefOptParams) muss SMART verwendet werden.
+    currency: USD
     max_strike: 500.0     # Anpassen je nach aktuellem Kurs (~560 USD, April 2026)
     max_contracts: 5
     notes: "S&P 500 ETF. Sehr liquide, enge Spreads, viele Expiries. OTM-Puts als Absicherung."
 
   - symbol: AAPL
-    exchange: SMART
+    stk_exchange: SMART
+    opt_exchange: SMART
     currency: USD
     max_strike: 150.0
-    max_contracts: 10 
+    max_contracts: 10
     notes: "Zu tief gefallen, um sie nicht zu wollen. Solide Dividende."
+
   - symbol: NVDA
-    exchange: SMART
+    stk_exchange: SMART
+    opt_exchange: SMART
     currency: USD
     max_strike: 150.0
-    max_contracts: 10 
+    max_contracts: 10
     notes: "Zu tief gefallen, um sie nicht zu wollen. Solide Dividende."
+
   - symbol: PLTR
-    exchange: SMART
+    stk_exchange: SMART
+    opt_exchange: SMART
     currency: USD
     max_strike: 100.0
-    max_contracts: 10 
+    max_contracts: 10
     notes: "Zu tief gefallen, um sie nicht zu wollen. Solide Dividende."

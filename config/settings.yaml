@@ -4,7 +4,7 @@
 
 # ---- Interactive Brokers connection -----------------------------------------
 ib:
-  host: "127.0.0.1"
+  host: "nova-dev.local"   #settings.ib.host,
   port: 4001           # 7497 = TWS Paper, 7496 = TWS Live, 4002 = Gateway Paper, 4001 = Gateway Live
   client_id: 1
   market_data_type: 3  # 1=live, 2=frozen, 3=delayed, 4=delayed-frozen.

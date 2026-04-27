@@ -517,24 +517,26 @@ def _write_settings_sheet(ws, settings: Settings, run_ts: datetime) -> None:
 
 def _write_watchlist_sheet(ws, entries: list[WatchlistEntry]) -> None:
     ws.cell(row=1, column=1, value="Watchlist").font = TITLE_FONT
-    headers = ["Symbol", "Exchange", "Currency", "Max Strike", "Max Contracts", "Notes"]
+    headers = ["Symbol", "Stock Exchange", "Opt Exchange", "Trading Class", "Currency", "Max Strike", "Max Contracts", "Notes"]
     for ci, h in enumerate(headers, start=1):
         cell = ws.cell(row=3, column=ci, value=h)
         cell.font = HEADER_FONT
         cell.fill = HEADER_FILL
         cell.alignment = Alignment(horizontal="center")
 
-    widths = [10, 10, 10, 14, 16, 50]
+    widths = [10, 14, 14, 14, 10, 14, 16, 50]
     for ci, w in enumerate(widths, start=1):
         ws.column_dimensions[get_column_letter(ci)].width = w
 
     for ri, e in enumerate(entries, start=4):
         ws.cell(row=ri, column=1, value=e.symbol)
-        ws.cell(row=ri, column=2, value=e.exchange)
-        ws.cell(row=ri, column=3, value=e.currency)
-        ws.cell(row=ri, column=4, value=e.max_strike).number_format = "#,##0.00"
-        ws.cell(row=ri, column=5, value=e.max_contracts)
-        ws.cell(row=ri, column=6, value=e.notes)
+        ws.cell(row=ri, column=2, value=e.stk_exchange)
+        ws.cell(row=ri, column=3, value=e.opt_exchange)
+        ws.cell(row=ri, column=4, value=e.trading_class)
+        ws.cell(row=ri, column=5, value=e.currency)
+        ws.cell(row=ri, column=6, value=e.max_strike).number_format = "#,##0.00"
+        ws.cell(row=ri, column=7, value=e.max_contracts)
+        ws.cell(row=ri, column=8, value=e.notes)
 
 
 # ---------------------------------------------------------------------------

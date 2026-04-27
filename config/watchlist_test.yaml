@@ -1,32 +1,31 @@
 # =============================================================================
 # Watchlist for Cash-Secured Short Put Scanner
 # =============================================================================
-# Each entry describes a US stock you would be willing to own.
-#
 # Fields:
-#   symbol        : IB ticker (US stocks only).
-#   exchange      : Primary exchange. "SMART" routes via IB Smart Routing.
-#   currency      : "USD" for US stocks.
-#   max_strike    : Highest strike you accept ("Wunschniveau"). The scanner
-#                   only considers puts with strike <= max_strike.
-#                   Set to a level at/below which you actively want to be
-#                   assigned (e.g. fair value or technical support).
-#   max_contracts : Maximum number of put contracts the scanner is allowed
-#                   to recommend per underlying (informational only).
-#   notes         : Free-text reason why this stock is on your watchlist.
+#   symbol        : IB ticker.
+#   stk_exchange  : Exchange für Stock-Qualifizierung. "SMART" = IB Smart Routing.
+#   opt_exchange  : Exchange für Options-Fetch. US-Aktien: "SMART".
+#                   Europäische Aktien: z.B. "EUREX".
+#   trading_class : IB Trading Class (optional). Leer = automatisch von IB.
+#   currency      : Währung des Underlyings ("USD" oder "EUR").
+#   max_strike    : Höchster Strike, den der Scanner berücksichtigt.
+#   max_contracts : Maximale Kontraktzahl pro Underlying (informativ).
+#   notes         : Freitext-Kommentar.
 # =============================================================================
 
 watchlist:
 #  - symbol: QQQ
-#    exchange: SMART
+#    stk_exchange: SMART
+#    opt_exchange: SMART
 #    currency: USD
 #    max_strike: 650.0
-#    max_contracts: 20 
+#    max_contracts: 20
 #    notes: "NASDAQ-ETF"
   - symbol: SPY
-    exchange: SMART
+    stk_exchange: SMART
+    opt_exchange: SMART
     currency: USD
     max_strike: 700.0
-    max_contracts: 20 
+    max_contracts: 20
     notes: "S&P-ETF"
 

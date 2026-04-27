@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import math
+import socket
 from datetime import datetime
 from typing import TYPE_CHECKING, Iterable
 
@@ -121,8 +122,22 @@ class IBClient:
         # bulk option qualification before we start talking to IB.
         install_ib_error_filter()
 
-        log.info("Connecting to IB at %s:%s (clientId=%s)", self.host, self.port, self.client_id)
-        self.ib.connect(self.host, self.port, clientId=self.client_id, timeout=self.timeout)
+        # Hostname zu IP auflösen — IB Gateway akzeptiert Verbindungen nur von
+        # bekannten IPs (Trusted IPs). Hostnamen wie nova-dev.local werden intern
+        # als LAN-IP empfangen; durch explizite Auflösung wird die korrekte IP
+        # übergeben und der Verbindungsaufbau ist deterministisch.
+        try:
+            resolved = socket.gethostbyname(self.host)
+        except socket.gaierror as exc:
+            log.warning("Hostname '%s' konnte nicht aufgelöst werden (%s) — verwende Original.", self.host, exc)
+            resolved = self.host
+
+        if resolved != self.host:
+            log.info("Connecting to IB at %s → %s:%s (clientId=%s)", self.host, resolved, self.port, self.client_id)
+        else:
+            log.info("Connecting to IB at %s:%s (clientId=%s)", self.host, self.port, self.client_id)
+
+        self.ib.connect(resolved, self.port, clientId=self.client_id, timeout=self.timeout)
         # 1=live, 2=frozen, 3=delayed, 4=delayed-frozen
         self.ib.reqMarketDataType(self.market_data_type)
 

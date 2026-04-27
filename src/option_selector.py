@@ -109,7 +109,7 @@ class CSPSelector:
         today = today or datetime.utcnow()
         log.info("Scanning %s (max_strike=%.2f)", entry.symbol, entry.max_strike)
 
-        stock = self.client.qualify_stock(entry.symbol, entry.exchange, entry.currency)
+        stock = self.client.qualify_stock(entry.symbol, entry.stk_exchange, entry.currency)
         spot = self.client.spot_price(stock)
         if math.isnan(spot) or spot <= 0:
             log.warning("No spot price for %s, skipping.", entry.symbol)
@@ -131,6 +131,8 @@ class CSPSelector:
             )
 
         chain = self.client.option_chain_params(stock)
+        # trading_class: Watchlist-Eintrag hat Vorrang; sonst IB-Auto-Detection
+        effective_trading_class = entry.trading_class or chain["trading_class"]
         if not chain["expiries"] or not chain["strikes"]:
             log.warning(
                 "%s: reqSecDefOptParams returned no expiries/strikes. "
@@ -213,8 +215,8 @@ class CSPSelector:
                 symbol=entry.symbol,
                 expiry=expiry,
                 strikes=candidate_strikes,
-                exchange="SMART",
-                trading_class=chain["trading_class"],
+                exchange=entry.opt_exchange,
+                trading_class=effective_trading_class,
                 currency=entry.currency,
             )
 

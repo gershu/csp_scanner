@@ -12,7 +12,9 @@ import yaml
 @dataclass
 class WatchlistEntry:
     symbol: str
-    exchange: str = "SMART"
+    stk_exchange: str = "SMART"   # Exchange für Stock-Qualifizierung (qualify_stock)
+    opt_exchange: str = "SMART"   # Exchange für Options-Fetch (fetch_put_quotes)
+    trading_class: str = ""       # IB Trading Class – Override; leer = automatisch von IB
     currency: str = "USD"
     max_strike: float = float("inf")
     max_contracts: int = 1
@@ -78,10 +80,14 @@ def load_watchlist(path: str | Path) -> list[WatchlistEntry]:
     entries = data.get("watchlist", [])
     out: list[WatchlistEntry] = []
     for row in entries:
+        # Rückwärtskompatibilität: altes 'exchange'-Feld als Fallback für beide Felder
+        exchange_fallback = row.get("exchange", "SMART")
         out.append(
             WatchlistEntry(
                 symbol=str(row["symbol"]).upper(),
-                exchange=row.get("exchange", "SMART"),
+                stk_exchange=str(row.get("stk_exchange", exchange_fallback)),
+                opt_exchange=str(row.get("opt_exchange", exchange_fallback)),
+                trading_class=str(row.get("trading_class", "")),
                 currency=row.get("currency", "USD"),
                 max_strike=float(row.get("max_strike", float("inf"))),
                 max_contracts=int(row.get("max_contracts", 1)),
