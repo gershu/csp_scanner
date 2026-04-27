@@ -139,7 +139,23 @@ class IBClient:
 
     # ---- stock ------------------------------------------------------------
 
-    def qualify_stock(self, symbol: str, exchange: str = "SMART", currency: str = "USD"):
+    def qualify_stock(
+        self,
+        symbol: str,
+        exchange: str = "SMART",
+        currency: str = "USD",
+        opt_exchange: str | None = None,
+        trading_class: str | None = None,
+    ):
+        """Qualify a stock contract for trading.
+        
+        Args:
+            symbol: Stock ticker symbol
+            exchange: Primary exchange for the stock (default: SMART)
+            currency: Currency code (default: USD)
+            opt_exchange: Optional options exchange (ignored, kept for API compatibility)
+            trading_class: Optional trading class (ignored, kept for API compatibility)
+        """
         from ib_async import Stock
 
         stk = Stock(symbol, exchange, currency)

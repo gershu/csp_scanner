@@ -109,7 +109,14 @@ class CSPSelector:
         today = today or datetime.utcnow()
         log.info("Scanning %s (max_strike=%.2f)", entry.symbol, entry.max_strike)
 
-        stock = self.client.qualify_stock(entry.symbol, entry.exchange, entry.currency)
+        stock = self.client.qualify_stock(
+                entry.symbol,
+                entry.stk_exchange,
+                entry.opt_exchange,      # ← neu
+                entry.currency,
+                entry.trading_class     # ← neu
+            )
+
         spot = self.client.spot_price(stock)
         if math.isnan(spot) or spot <= 0:
             log.warning("No spot price for %s, skipping.", entry.symbol)
@@ -134,15 +141,15 @@ class CSPSelector:
         if not chain["expiries"] or not chain["strikes"]:
             log.warning(
                 "%s: reqSecDefOptParams returned no expiries/strikes. "
-                "Check that exchange='SMART' is used (not a primary exchange like ARCA/NASDAQ). "
+                "Check that opt_exchange='SMART' is used (not a primary opt_exchange like ARCA/NASDAQ). "
                 "IB option-chain lookups require SMART routing.",
                 entry.symbol,
             )
             return []
 
         n_total = len(chain["expiries"])
-        log.debug("%s: %d expiries from IB (exchange=%s, tradingClass=%s)",
-                  entry.symbol, n_total, chain["exchange"], chain["trading_class"])
+        log.debug("%s: %d expiries from IB (opt_exchange=%s, tradingClass=%s)",
+                  entry.symbol, n_total, chain["opt_exchange"], chain["trading_class"])
 
         # ---- Filter 1: DTE window -----------------------------------------
         in_dte = [
@@ -213,8 +220,8 @@ class CSPSelector:
                 symbol=entry.symbol,
                 expiry=expiry,
                 strikes=candidate_strikes,
-                exchange="SMART",
-                trading_class=chain["trading_class"],
+                exchange=entry.opt_exchange,                
+                trading_class=entry.trading_class,
                 currency=entry.currency,
             )
 

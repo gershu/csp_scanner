@@ -17,12 +17,12 @@
 # =============================================================================
 
 watchlist:
-#  - symbol: QQQ
-#    exchange: SMART
-#    currency: USD
-#    max_strike: 650.0
-#    max_contracts: 20 
-#    notes: "NASDAQ-ETF"
+  - symbol: QQQ
+    exchange: SMART
+    currency: USD
+    max_strike: 650.0
+    max_contracts: 20 
+    notes: "NASDAQ-ETF"
   - symbol: SPY
     exchange: SMART
     currency: USD

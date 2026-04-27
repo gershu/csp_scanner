@@ -12,8 +12,10 @@ import yaml
 @dataclass
 class WatchlistEntry:
     symbol: str
-    exchange: str = "SMART"
-    currency: str = "USD"
+    stk_exchange: str = "SMART"      # Primary exchange for the stock
+    opt_exchange: str = "SMART"      # Exchange for options
+    trading_class: str = ""          # IB trading class (usually same as symbol)
+    currency: str = "USD"            # Currency of the underlying
     max_strike: float = float("inf")
     max_contracts: int = 1
     notes: str = ""
@@ -78,10 +80,17 @@ def load_watchlist(path: str | Path) -> list[WatchlistEntry]:
     entries = data.get("watchlist", [])
     out: list[WatchlistEntry] = []
     for row in entries:
+        # Handle both old format (exchange) and new format (stk_exchange/opt_exchange)
+        stk_exchange = row.get("stk_exchange") or row.get("exchange") or "SMART"
+        opt_exchange = row.get("opt_exchange", "SMART")
+        trading_class = row.get("trading_class", str(row["symbol"]).upper())
+        
         out.append(
             WatchlistEntry(
                 symbol=str(row["symbol"]).upper(),
-                exchange=row.get("exchange", "SMART"),
+                stk_exchange=stk_exchange,
+                opt_exchange=opt_exchange,
+                trading_class=trading_class,
                 currency=row.get("currency", "USD"),
                 max_strike=float(row.get("max_strike", float("inf"))),
                 max_contracts=int(row.get("max_contracts", 1)),
