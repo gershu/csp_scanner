@@ -106,6 +106,16 @@ class IBClient:
         market_data_type: int = 3,
         request_timeout_s: int = 15,
     ) -> None:
+        # Python 3.12+ raises RuntimeError when get_event_loop() is called without
+        # a running loop (e.g. in the main thread before any async code). eventkit
+        # (pulled in by ib_async) calls get_event_loop() at import time, so we
+        # ensure a loop exists before the import happens.
+        import asyncio
+        try:
+            asyncio.get_event_loop()
+        except RuntimeError:
+            asyncio.set_event_loop(asyncio.new_event_loop())
+
         from ib_async import IB  # local import: keeps module importable without ib_async installed
 
         self.host = host
